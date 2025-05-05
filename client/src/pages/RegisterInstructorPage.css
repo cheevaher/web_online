@@ -1,0 +1,100 @@
+/* RegisterInstructorPage.css */
+
+/* กำหนดพื้นหลังของทั้งหน้า */
+.register-instructor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f4f4f9;
+  }
+  
+  /* กำหนดสไตล์สำหรับหัวข้อ */
+  h2 {
+    font-size: 2rem;
+    color: #4b5563;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  /* ฟอร์ม */
+  .register-instructor-form {
+    background-color: #ffffff;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ส่วนของแต่ละ input หรือ textarea */
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  /* กำหนดสไตล์สำหรับ label */
+  .form-group label {
+    font-size: 1rem;
+    color: #333333;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  /* กำหนดสไตล์สำหรับ input และ textarea */
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333333;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #6366f1; /* สีเมื่ออยู่ในโฟกัส */
+  }
+  
+  /* กำหนดสไตล์สำหรับปุ่ม */
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .register-btn {
+    background-color: #6366f1;
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  /* เปลี่ยนสีเมื่อ hover */
+  .register-btn:hover {
+    background-color: #4f46e5;
+  }
+  
+  /* สไตล์เมื่อไม่ให้ขนาดเกิน */
+  textarea {
+    resize: vertical;
+  }
+  
+  /* ทำให้แน่ใจว่า form ถูกจัดในกลาง */
+  .register-instructor-container {
+    justify-content: flex-start;
+  }
+  
+  /* เพิ่มเว้นระยะช่องให้ดูห่างจากขอบ */
+  .register-instructor-form input,
+  .register-instructor-form textarea {
+    margin-bottom: 10px;
+  }
+  

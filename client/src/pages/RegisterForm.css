@@ -1,0 +1,72 @@
+.register-form-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .form-group label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 15px; /* เพิ่มระยะห่างระหว่างปุ่ม */
+  }
+  
+  .register-btn {
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    flex: 1; /* ทำให้ปุ่มขยายเต็มพื้นที่เท่าๆ กัน */
+    transition: background-color 0.3s;
+  }
+  
+  .register-btn:hover {
+    background-color: #45a049;
+  }
+  
+  .login-btn {
+    padding: 12px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    flex: 1; /* ทำให้ปุ่มขยายเต็มพื้นที่เท่าๆ กัน */
+    transition: all 0.3s;
+  }
+  
+  .login-btn:hover {
+    background-color: #e0e0e0;
+    border-color: #ccc;
+  }
