@@ -10,10 +10,10 @@ import {
 
 const router = express.Router();
 
-// ✅ เปลี่ยนจาก :id เป็น :courseId เพื่อความชัดเจน
+// เปลี่ยนจาก :id เป็น :courseId เพื่อความชัดเจน
 router.post('/courses/:courseId/lessons', authenticate, createLesson);
 
-// ✅ ดึงบทเรียนทั้งหมดของคอร์ส
+// ดึงบทเรียนทั้งหมดของคอร์ส
 router.get('/courses/:courseId/lessons', authenticate, getLessonsByCourseId);
 
 // ดึงบทเรียนเดี่ยว ๆ ตาม lesson ID
@@ -22,7 +22,9 @@ router.get('/lessons/:lessonId', authenticate, getLessonById);
 // แก้ไขบทเรียน
 router.put('/lessons/:lessonId', authenticate, updateLesson);
 
-// ลบบทเรียน
-router.delete('/lessons/:lessonId', authenticate, deleteLesson);
+
+// ลบบทเรียนโดยระบุ courseId และ lessonId
+router.delete('/courses/:courseId/lessons/:lessonId', authenticate, deleteLesson);
+
 
 export default router;

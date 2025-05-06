@@ -87,7 +87,10 @@ export const getLessonById = async (req, res) => {
 // ✅ แก้ไขบทเรียน
 export const updateLesson = async (req, res) => {
     const { lessonId } = req.params;
-    const { lesson_name, description, video_url, lesson_type } = req.body;
+    const { lesson_name, description, video_url } = req.body;
+
+    // กำหนดค่า lesson_type เป็น "วีดีโอ" โดยอัตโนมัติ
+    const lessonType = "วีดีโอ"; 
 
     try {
         const result = await pool.query(
@@ -95,7 +98,7 @@ export const updateLesson = async (req, res) => {
              SET lesson_name = $1, lesson_type = $2, description = $3, video_url = $4 
              WHERE lesson_id = $5
              RETURNING *`,
-            [lesson_name, lesson_type, description, video_url, lessonId]
+            [lesson_name, lessonType, description, video_url, lessonId]
         );
 
         if (result.rows.length === 0) {
@@ -109,13 +112,16 @@ export const updateLesson = async (req, res) => {
     }
 };
 
+
+
 // ✅ ลบบทเรียน
 export const deleteLesson = async (req, res) => {
     const { lessonId } = req.params;
 
     try {
+        // ลบบทเรียนโดยใช้ id แทน course_id
         const result = await pool.query(
-            `DELETE FROM lesson WHERE lesson_id = $1 RETURNING *`,
+            `DELETE FROM lesson WHERE id = $1 RETURNING *`, // เปลี่ยนจาก course_id เป็น id
             [lessonId]
         );
 
@@ -129,3 +135,4 @@ export const deleteLesson = async (req, res) => {
         res.status(500).json({ message: 'ไม่สามารถลบบทเรียนได้' });
     }
 };
+
