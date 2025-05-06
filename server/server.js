@@ -5,7 +5,7 @@ import { pool } from './config/db.js';
 import uploadRoutes from './routes/upload.routes.js';
 import courseRoutes from './routes/course.routes.js';
 import categoryRoutes from './routes/category.routes.js';
-
+import lessonRoutes from './routes/lesson.route.js';
 // ตั้งค่า environment variables
 dotenv.config();
 
@@ -25,7 +25,7 @@ app.use(express.json());
 import authRoutes from './routes/auth.routes.js';
 import { userRoutes } from './routes/user.routes.js';
 import { instructorRoutes } from './routes/instructor.routes.js';
-
+app.use('/api', lessonRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/instructor', instructorRoutes);

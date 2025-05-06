@@ -13,6 +13,7 @@ import ComponentCreateCourse from './pages/instructor/ComponentCreateCourse';
 import MyCourses from './pages/instructor/ComponentMyCourses'; // ✅ แค่นี้พอ
 import EditCoursePage from './pages/instructor/EditCoursePage';
 import ManageLessonsPage from './pages/instructor/ManageLessonsPage';
+import CourseVideos from './pages/instructor/CourseVideos'; // ✅ แค่นี้พอ
 
 // ❌ ไม่ต้อง import ComponentCreateCourse ที่นี่นะ
 
@@ -62,10 +63,17 @@ const AppRoutes = () => {
         path="/courses/:id/edit" 
         element={<ProtectedRoute element={<EditCoursePage />} requiredRole="instructor" />}
       />
-      <Route 
-  path="/course-management/courses/:id/lessons" 
+      
+<Route 
+  path="/course-management/courses/:courseId/lessons" 
   element={<ProtectedRoute element={<ManageLessonsPage />} requiredRole="instructor" />}
 />
+<Route
+  path="/course-management/courses/:courseId/videos"
+  element={<ProtectedRoute element={<CourseVideos />} requiredRole="instructor" />}
+/>
+
+
       {/* เส้นทางสำหรับ 404 Not Found */}
       <Route path="*" element={<div>ไม่พบหน้าที่คุณต้องการ</div>} />
     </Routes>

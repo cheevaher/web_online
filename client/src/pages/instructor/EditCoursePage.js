@@ -177,7 +177,7 @@ const EditCoursePage = () => {
 
         {/* เพิ่มปุ่มไปหน้าจัดการบทเรียน */}
         <div className="flex justify-end space-x-3">
-          <button type="button" onClick={() => navigate(`/course-management/courses/${id}/lessons`)} className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+          <button type="button" onClick={() => navigate(`/course-management/courses/${id}/videos`)} className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
             จัดการบทเรียน
           </button>
           <button type="button" onClick={() => navigate(-1)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">ยกเลิก</button>

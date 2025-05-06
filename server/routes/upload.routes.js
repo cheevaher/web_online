@@ -18,20 +18,34 @@ cloudinary.config({
 // ใช้ CloudinaryStorage แทน diskStorage
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: 'uploads', // โฟลเดอร์ใน Cloudinary (สร้างอัตโนมัติถ้ายังไม่มี)
-    allowed_formats: ['jpg', 'jpeg', 'png'],
+  params: (req, file) => {
+    // ตรวจสอบว่าเป็นรูปภาพหรือวิดีโอ
+    const isImage = file.mimetype.startsWith('image');
+    const isVideo = file.mimetype.startsWith('video');
+
+    // เลือก folder และ allowed_formats ตามประเภทไฟล์
+    return {
+      folder: isImage ? 'uploads/images' : isVideo ? 'uploads/videos' : 'uploads/other',
+      allowed_formats: isImage
+        ? ['jpg', 'jpeg', 'png']
+        : isVideo
+        ? ['mp4', 'mov', 'avi', 'mkv']
+        : [], // สามารถกำหนดไฟล์ประเภทอื่นได้ถ้าต้องการ
+      resource_type: isImage ? 'image' : isVideo ? 'video' : 'raw', // กำหนด resource type ตามประเภทไฟล์
+    };
   },
 });
 
 const upload = multer({ storage });
 
-// เส้นทางสำหรับอัปโหลดรูปภาพ
+// เส้นทางสำหรับอัปโหลดไฟล์ (ทั้งรูปภาพและวิดีโอ)
 router.post('/', upload.single('file'), (req, res) => {
-  console.log(req.file)
+  console.log(req.file); // ดูข้อมูลไฟล์ที่อัพโหลด
+
+  // ส่ง URL ของไฟล์ที่อัพโหลดไปกลับ
   res.json({
-    imageUrl: req.file.path,       // URL ที่ได้จาก Cloudinary
-    publicId: req.file.filename    // ชื่อไฟล์ (ใช้สำหรับลบภายหลังได้)
+    fileUrl: req.file.path,  // URL ของไฟล์ที่อัพโหลด
+    publicId: req.file.filename, // publicId ของไฟล์ (ใช้สำหรับลบภายหลังได้)
   });
 });
 
