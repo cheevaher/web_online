@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { jwtDecode } from 'jwt-decode';
+
 const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -12,7 +13,7 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth(); // ตรวจสอบว่า login ฟังก์ชันถูกต้อง
+  const { login } = useAuth(); // ກວດສອບຟังก์ชัน login
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +28,7 @@ const LoginForm = () => {
     setError('');
 
     if (!formData.email || !formData.password) {
-      setError('กรุณากรอกอีเมลและรหัสผ่าน');
+      setError('ກະລຸນາປ້ອນອີເມວ ແລະ ລະຫັດຜ່ານ');
       return;
     }
 
@@ -55,35 +56,43 @@ const LoginForm = () => {
         throw new Error('Invalid server response');
       }
 
-      // เรียกใช้ฟังก์ชัน login จาก context
+      // Decode token
       const decoded = jwtDecode(data.token);
 
-login({
-  token: data.token,
-  user: {
-    id: decoded.id,
-    email: decoded.email,
-    name: data.user.name,   // สมมุติว่าชื่ออยู่ใน data.user
-    role: decoded.role,     // ✅ ดึงจาก token มาใส่ user
-  }
-});
+      // ກຳນົດຊື່ user ຕາມ role
+      let userName = data.user.name;
+      if (decoded.role === 'admin') {
+        // ສົມມຸດວ່າ admin ບໍ່ມີຊື່ໃນ data.user.name, ອາດຈະຕ້ອງໃຊ້ຊື່ອື່ນ ຫຼືພຽງແຕ່ຕັ້ງເປັນ 'Admin'
+        userName = data.user.name || 'Admin';
+      }
 
-      // เปลี่ยนเส้นทางไปที่ /course-management หลังจากล็อกอินสำเร็จ
-      console.log("Navigating to /course-management...");
-navigate('/courses');
-console.log("Navigation attempted");
+      login({
+        token: data.token,
+        user: {
+          id: decoded.id,
+          email: decoded.email,
+          name: userName,
+          role: decoded.role,
+        }
+      });
 
-      
-      
+      // ປ່ຽນເສັ້ນທາງຫຼັງຈາກເຂົ້າສູ່ລະບົບສຳເລັດ
+      if (decoded.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (decoded.role === 'instructor') {
+        navigate('/courses');
+      } else {
+        navigate('/courses');
+      }
+
     } catch (error) {
       console.error('Login error:', error);
-      
-      // แยกประเภทข้อผิดพลาด
-      let errorMessage = 'เกิดข้อผิดพลาดในการล็อกอิน';
+
+      let errorMessage = 'ເກີດຂໍ້ຜິດພາດໃນການເຂົ້າສູ່ລະບົບກະລຸນາລອງໃໝ່ພາຍຫຼັງ';
       if (error.message.includes('credentials')) {
-        errorMessage = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+        errorMessage = 'ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ';
       } else if (error.message.includes('network')) {
-        errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์';
+        errorMessage = 'ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບເຊີບເວີໄດ້';
       }
 
       setError(errorMessage);
@@ -96,14 +105,14 @@ console.log("Navigation attempted");
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">เข้าสู่ระบบ</h2>
+          <h2 className="text-3xl font-extrabold text-gray-900">ເຂົ້າສູ່ລະບົບ</h2>
           <p className="mt-2 text-sm text-gray-600">
-            หรือ{' '}
+            ຫຼື{' '}
             <Link
               to="/register"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              สมัครสมาชิกใหม่
+              ສະໝັກສະມາຊິກໃໝ່
             </Link>
           </p>
         </div>
@@ -118,7 +127,7 @@ console.log("Navigation attempted");
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                อีเมล
+                ອີເມວ
               </label>
               <input
                 id="email"
@@ -128,7 +137,8 @@ console.log("Navigation attempted");
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 
+                rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="your@email.com"
                 disabled={isLoading}
               />
@@ -136,7 +146,7 @@ console.log("Navigation attempted");
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                รหัสผ่าน
+                ລະຫັດຜ່ານ
               </label>
               <div className="relative">
                 <input
@@ -147,7 +157,8 @@ console.log("Navigation attempted");
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500
+                   text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -166,9 +177,10 @@ console.log("Navigation attempted");
             <button
               type="submit"
               disabled={isLoading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${isLoading ? 'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${isLoading ? 
+                'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
             >
-              {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+              {isLoading ? 'ກຳລັງເຂົ້າສູ່ລະບົບ...' : 'ເຂົ້າສູ່ລະບົບ'}
             </button>
           </div>
         </form>

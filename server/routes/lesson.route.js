@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticate } from '../middlewares/authenticate.js';
+import { checkCourseAccess } from '../middlewares/checkCourseAccess.js';
 import {
   createLesson,
   getLessonsByCourseId,
@@ -14,7 +15,7 @@ const router = express.Router();
 router.post('/courses/:courseId/lessons', authenticate, createLesson);
 
 // ดึงบทเรียนทั้งหมดของคอร์ส
-router.get('/courses/:courseId/lessons', authenticate, getLessonsByCourseId);
+router.get('/courses/:courseId/lessons', authenticate, checkCourseAccess, getLessonsByCourseId);
 
 // ดึงบทเรียนเดี่ยว ๆ ตาม lesson ID
 router.get('/lessons/:lessonId', authenticate, getLessonById);

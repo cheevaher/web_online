@@ -24,7 +24,7 @@ router.post('/register-instructor', async (req, res) => {
     if (!instructor_name || !instructor_email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'กรุณากรอกชื่อ, อีเมลและรหัสผ่าน'
+        message: 'ກະລຸນາໃສ່ຊື່, ອີເມວ ແລະ ລະຫັດຜ່ານ'
       });
     }
 
@@ -37,7 +37,7 @@ router.post('/register-instructor', async (req, res) => {
     if (emailCheck.rows.length > 0) {
       return res.status(409).json({
         success: false,
-        message: 'อีเมลนี้ถูกใช้แล้ว'
+        message: 'ອີເມວນີ້ຖືກໃຊ້ໄປແລ້ວ'
       });
     }
 
@@ -69,7 +69,7 @@ router.post('/register-instructor', async (req, res) => {
     const newInstructor = result.rows[0];
     res.status(201).json({
       success: true,
-      message: 'ลงทะเบียนผู้สอนสำเร็จ',
+      message: 'ລົງທະບຽນຜູ້ສອນສຳເລັດ',
       data: newInstructor
     });
 
@@ -77,7 +77,7 @@ router.post('/register-instructor', async (req, res) => {
     console.error('Error registering instructor:', error);
     res.status(500).json({
       success: false,
-      message: 'เกิดข้อผิดพลาดในการลงทะเบียนผู้สอน',
+      message: 'ເກີດຄວາມຜິດພາດໃນການລົງທະບຽນຜູ້ສອນ',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

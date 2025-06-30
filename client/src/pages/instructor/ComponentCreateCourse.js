@@ -6,7 +6,6 @@ const CreateCourse = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
-  // เรียกใช้ Hook ทั้งหมดที่ด้านบนสุดของ component
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -17,8 +16,8 @@ const CreateCourse = () => {
   const [categories, setCategories] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ตรวจสอบการยืนยันตัวตนและดึงข้อมูล
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
       if (!isAuthenticated()) {
@@ -27,15 +26,14 @@ const CreateCourse = () => {
       }
 
       try {
-        // ดึงรายการหมวดหมู่
         const categoriesResponse = await fetch('/api/categories', {
           headers: {
-            'Authorization': `Bearer ${user.token}` // ส่ง token ด้วย
+            'Authorization': `Bearer ${user.token}`
           }
         });
-        
+
         if (!categoriesResponse.ok) {
-          throw new Error('Failed to fetch categories');
+          throw new Error('ດຶງຂໍ້ມູນປະເພດບໍ່ສຳເລັດ');
         }
 
         const categoriesData = await categoriesResponse.json();
@@ -52,30 +50,31 @@ const CreateCourse = () => {
 
   const handleImageUpload = async () => {
     if (!imageFile) {
-      console.error('No image file selected');
+      console.error('ຍັງບໍ່ໄດ້ເລືອກຮູບພາບ');
       return null;
     }
 
     const formData = new FormData();
     formData.append('file', imageFile);
+    formData.append('upload_preset', 'unsigned_preset');
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch('https://api.cloudinary.com/v1_1/dy0ivdkgg/image/upload', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload image');
+        const errorData = await response.json();
+        console.error('ອັບໂຫຼດຮູບບໍ່ສຳເລັດ:', errorData.message || 'ຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ');
+        return null;
       }
 
       const data = await response.json();
-      return data.imageUrl;
+      console.log('ອັບໂຫຼດຮູບສຳເລັດ:', data);
+      return data.secure_url;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('ເກີດຂໍ້ຜິດພາດໃນການອັບໂຫຼດຮູບ:', error);
       return null;
     }
   };
@@ -83,10 +82,14 @@ const CreateCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       const uploadedImageUrl = await handleImageUpload();
       if (!uploadedImageUrl) {
-        alert('Image upload failed');
+        alert('ອັບໂຫຼດຮູບບໍ່ສຳເລັດ');
+        setIsSubmitting(false);
         return;
       }
 
@@ -109,26 +112,27 @@ const CreateCourse = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create course');
+        throw new Error('ສ້າງຄອສບໍ່ສຳເລັດ');
       }
 
       navigate('/');
     } catch (error) {
       console.error('Error:', error);
       alert(error.message);
+      setIsSubmitting(false);
     }
   };
 
   if (!isAuthenticated() || isLoading) {
-    return null; // หรือแสดง loading spinner
+    return null; // ຫຼືຈະໃສ່ loading spinner ກໍໄດ້
   }
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">สร้างคอร์สเรียนใหม่</h1>
+      <h1 className="text-2xl font-bold mb-4">ສ້າງຄອສຮຽນໃໝ່</h1>
       <form onSubmit={handleSubmit} className="max-w-md">
         <div className="mb-4">
-          <label className="block mb-2">ชื่อคอร์ส</label>
+          <label className="block mb-2">ຊື່ຄອສ</label>
           <input
             type="text"
             className="w-full p-2 border rounded"
@@ -138,7 +142,7 @@ const CreateCourse = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">คำอธิบาย</label>
+          <label className="block mb-2">ຄຳອະທິບາຍ</label>
           <textarea
             className="w-full p-2 border rounded"
             value={formData.description}
@@ -147,7 +151,7 @@ const CreateCourse = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">ราคา</label>
+          <label className="block mb-2">ລາຄາ</label>
           <input
             type="number"
             className="w-full p-2 border rounded"
@@ -158,7 +162,7 @@ const CreateCourse = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">อัปโหลดรูปภาพ</label>
+          <label className="block mb-2">ອັບໂຫຼດຮູບພາບ</label>
           <input
             type="file"
             className="w-full p-2 border rounded"
@@ -168,14 +172,14 @@ const CreateCourse = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">หมวดหมู่</label>
+          <label className="block mb-2">ຫມວດໝູ່</label>
           <select
             className="w-full p-2 border rounded"
             value={formData.categoryId}
             onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
             required
           >
-            <option value="">เลือกหมวดหมู่</option>
+            <option value="">-- ເລືອກຫມວດໝູ່ --</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -183,11 +187,12 @@ const CreateCourse = () => {
             ))}
           </select>
         </div>
-        <button 
-          type="submit" 
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        <button
+          type="submit"
+          className={`bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
+          disabled={isSubmitting}
         >
-          สร้างคอร์ส
+          {isSubmitting ? 'ກຳລັງສ້າງ...' : 'ສ້າງຄອສ'}
         </button>
       </form>
     </div>

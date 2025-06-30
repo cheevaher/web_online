@@ -14,25 +14,25 @@ router.post('/register', async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'กรุณากรอกข้อมูลให้ครบถ้วน'
+        message: 'ກະລຸນາໃສ່ຂໍ້ມູນໃຫ້ຄົບຖ້ວນ'
       });
     }
 
     const existingUser = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
+      'SELECT * FROM learner WHERE email = $1',
       [email.toLowerCase().trim()]
     );
     if (existingUser.rows.length > 0) {
       return res.status(409).json({
         success: false,
-        message: 'อีเมลนี้ถูกใช้แล้ว'
+        message: 'ອີເມວນີ້ຖືກໃຊ້ໄປແລ້ວ'
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
+      'INSERT INTO learner (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
       [username.trim(), email.toLowerCase().trim(), hashedPassword]
     );
 
@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'ลงทะเบียนสำเร็จ',
+      message: 'ລົງທະບຽນສຳເລັດ',
       user: newUser
     });
 
@@ -48,12 +48,13 @@ router.post('/register', async (req, res) => {
     console.error('Register error:', error);
     res.status(500).json({
       success: false,
-      message: 'เกิดข้อผิดพลาดในการลงทะเบียน',
+      message: 'ເກີດຄວາມຜິດພາດໃນການລົງທະບຽນ',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
 
+// ✅ LOGIN ROUTE พร้อมแนบ role เข้า JWT
 // ✅ LOGIN ROUTE พร้อมแนบ role เข้า JWT
 router.post('/login', async (req, res) => {
   try {
@@ -62,13 +63,13 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ 
         success: false,
-        message: 'ต้องกรอกอีเมลและรหัสผ่าน' 
+        message: 'ຕ້ອງໃສ່ອີເມວ ແລະ ລະຫັດຜ່ານ' 
       });
     }
 
     // 1️⃣ เช็คใน users ก่อน
     let userResult = await pool.query(
-      'SELECT * FROM users WHERE email = $1', 
+      'SELECT * FROM learner WHERE email = $1', 
       [email.toLowerCase().trim()]
     );
 
@@ -89,27 +90,49 @@ router.post('/login', async (req, res) => {
       user = userResult.rows[0];
     }
 
-    // ❌ ถ้าไม่เจอทั้งสอง
+    // 3️⃣ ถ้าไม่เจอใน instructors ให้ไปเช็ค admin
+    if (!user) {
+      userResult = await pool.query(
+        'SELECT * FROM admin WHERE admin_email = $1',
+        [email.toLowerCase().trim()]
+      );
+      if (userResult.rows.length > 0) {
+        userType = 'admin';
+        user = userResult.rows[0];
+      }
+    }
+
+    // ❌ ถ้าไม่เจอทั้งสามที่
     if (!user) {
       return res.status(401).json({ 
         success: false,
-        message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' 
+        message: 'ອີເມວ ຫຼື ລະຫັດຜ່ານ ບໍ່ຖືກຕ້ອງ' 
       });
     }
+if (userType === 'instructor' && !user.is_approved) {
+  return res.status(403).json({
+    success: false,
+    message: 'ບັນຊີຜູ້ສອນຂອງທ່ານຍັງບໍ່ໄດ້ຮັບການອະນຸຍາດຈາກຜູ້ດູແລລະບົບ.'
+  });
+}
+    // 4️⃣ เช็ครหัสผ่าน โดยใช้ field ต่างกันใน admin กับ user/instructor
+    let passwordField = 'password'; // default user/instructor ใช้ password
+    if (userType === 'admin') {
+      passwordField = 'admin_pad'; // รหัสผ่านใน admin ใช้ admin_pad
+    }
 
-    // 3️⃣ เช็ครหัสผ่าน
-    const isMatch = await bcrypt.compare(password.trim(), user.password);
+    const isMatch = await bcrypt.compare(password.trim(), user[passwordField]);
     if (!isMatch) {
       return res.status(401).json({ 
         success: false,
-        message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' 
+        message: 'ອີເມວ ຫຼື ລະຫັດຜ່ານ ບໍ່ຖືກຕ້ອງ' 
       });
     }
 
-    // 4️⃣ เตรียมข้อมูล
-    const userId = user.id || user.instructor_id;
-    const userEmail = user.email || user.instructor_email;
-    const userName = user.username || user.instructor_name;
+    // 5️⃣ เตรียมข้อมูล
+    const userId = user.id || user.instructor_id || user.admin_id;
+    const userEmail = user.email || user.instructor_email || user.admin_email;
+    const userName = user.username || user.instructor_name || 'Admin';
 
     // ✅ สร้าง token ที่มี role
     const token = jwt.sign(
@@ -120,7 +143,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'ล็อกอินสำเร็จ',
+      message: 'ເຂົ້າສູ່ລະບົບສຳເລັດ',
       token,
       user: {
         id: userId,
@@ -134,10 +157,11 @@ router.post('/login', async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({ 
       success: false,
-      message: 'เกิดข้อผิดพลาดในการล็อกอิน',
+      message: 'ເກີດຄວາມຜິດພາດໃນການເຂົ້າລະບົບ',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
+
 
 export default router;

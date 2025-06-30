@@ -8,7 +8,7 @@ export const login = async (req, res) => {
 
     // ค้นหาผู้ใช้ในฐานข้อมูลตาม email
     const result = await db.query(
-      'SELECT id, name, email, password FROM users WHERE email = $1',
+      'SELECT id, name, email, password FROM learner WHERE email = $1',
       [email]
     );
 

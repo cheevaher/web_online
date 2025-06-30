@@ -1,131 +1,222 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ใช้เพื่อไปหน้าอื่นหลังจากลงทะเบียน
+import { useNavigate } from 'react-router-dom';
 import './RegisterInstructorPage.css';
 
 const RegisterInstructorPage = () => {
   const [instructorName, setInstructorName] = useState('');
   const [instructorTel, setInstructorTel] = useState('');
   const [instructorEmail, setInstructorEmail] = useState('');
-  const [instructorPad, setInstructorPad] = useState('');
+  const [instructorHistory, setInstructorHistory] = useState('');
   const [address, setAddress] = useState('');
-  const [password, setPassword] = useState('');  // เพิ่ม state สำหรับรหัสผ่าน
+  const [password, setPassword] = useState('');
+  const [file, setFile] = useState(null);
+
+  const [emailExists, setEmailExists] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(false);
 
   const navigate = useNavigate();
 
+  const checkEmailExists = async (email) => {
+    setCheckingEmail(true);
+    try {
+      const res = await fetch(`http://localhost:4000/api/check-email/${email}`);
+      if (!res.ok) throw new Error('ກວດອີເມວຜິດພາດ');
+      const data = await res.json();
+      setEmailExists(data.exists);
+      return data.exists;
+    } catch (error) {
+      console.error('Error checking email:', error);
+      setEmailExists(false);
+      return false;
+    } finally {
+      setCheckingEmail(false);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const uploadRes = await fetch('http://localhost:4000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('ອັບໂຫຼດຟາຍບໍ່ສຳເລັດ');
+      }
+
+      const uploadData = await uploadRes.json();
+      return uploadData.fileUrl;
+    } catch (err) {
+      console.error('Error uploading file:', err);
+      alert('ອັບໂຫຼດຟາຍບໍ່ສຳເລັດ');
+      return null;
+    }
+  };
+
+  const handleEmailChange = async (e) => {
+    const email = e.target.value;
+    setInstructorEmail(email);
+    if (email) {
+      await checkEmailExists(email);
+    } else {
+      setEmailExists(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    if (!instructorEmail) {
+      alert('ກະລຸນາປ້ອນອີເມວ');
+      return;
+    }
+
+    const exists = await checkEmailExists(instructorEmail);
+    if (exists) {
+      alert('ອີເມວນີ້ຖືກນຳໃຊ້ແລ້ວ ກະລຸນາໃຊ້ອີເມວອື່ນ');
+      return;
+    }
+
+    let fileUrl = instructorHistory;
+    if (file) {
+      const uploadedUrl = await handleFileUpload();
+      if (!uploadedUrl) return;
+      fileUrl = uploadedUrl;
+    }
+
     const instructorData = {
       instructor_name: instructorName,
       instructor_tel: instructorTel,
       instructor_email: instructorEmail,
-      instructor_pad: instructorPad,
+      instructor_history: fileUrl,
       address: address,
-      password: password // เพิ่ม password ที่เคยลืมส่ง
+      password: password,
     };
-  
+
     try {
-      const response = await fetch("http://localhost:4000/api/instructor/register-instructor", {
-        method: "POST",
+      const response = await fetch('http://localhost:4000/api/instructor/register-instructor', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(instructorData),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(errorData.message || 'ການລົງທະບຽນຜິດພາດ');
       }
-  
+
       const data = await response.json();
-      alert(data.message);
+      alert(data.message || 'ລົງທະບຽນສຳເລັດ');
       navigate('/');
     } catch (error) {
-      console.error("Error:", error);
-      alert(error.message || "There was an error registering the instructor.");
+      console.error('Error:', error);
+      alert(error.message || 'ເກີດຂໍ້ຜິດພາດໃນການລົງທະບຽນ');
     }
   };
-  
 
   return (
-    <div className="register-instructor-container">
-      <h2>ลงทะเบียนผู้สอน</h2>
-      <form onSubmit={handleSubmit} className="register-instructor-form">
-        <div className="form-group">
-          <label htmlFor="instructorName">ชื่อผู้สอน</label>
-          <input
-            type="text"
-            id="instructorName"
-            value={instructorName}
-            onChange={(e) => setInstructorName(e.target.value)}
-            required
-            placeholder="กรุณากรอกชื่อผู้สอน"
-          />
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <h2 className="text-3xl font-extrabold text-gray-900 text-center">ລົງທະບຽນຜູ້ສອນ</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="instructorName" className="block text-sm font-medium text-gray-700 mb-1">ຊື່ຜູ້ສອນ</label>
+              <input
+                type="text"
+                id="instructorName"
+                value={instructorName}
+                onChange={(e) => setInstructorName(e.target.value)}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="ປ້ອນຊື່"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="instructorTel">เบอร์โทรศัพท์</label>
-          <input
-            type="tel"
-            id="instructorTel"
-            value={instructorTel}
-            onChange={(e) => setInstructorTel(e.target.value)}
-            required
-            placeholder="กรุณากรอกเบอร์โทรศัพท์"
-          />
-        </div>
+            <div>
+              <label htmlFor="instructorTel" className="block text-sm font-medium text-gray-700 mb-1">ເບີໂທ</label>
+              <input
+                type="tel"
+                id="instructorTel"
+                value={instructorTel}
+                onChange={(e) => setInstructorTel(e.target.value)}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="020xxxxxxxx"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="instructorEmail">อีเมล์</label>
-          <input
-            type="email"
-            id="instructorEmail"
-            value={instructorEmail}
-            onChange={(e) => setInstructorEmail(e.target.value)}
-            required
-            placeholder="กรุณากรอกอีเมล์"
-          />
-        </div>
+            <div>
+              <label htmlFor="instructorEmail" className="block text-sm font-medium text-gray-700 mb-1">ອີເມວ</label>
+              <input
+                type="email"
+                id="instructorEmail"
+                value={instructorEmail}
+                onChange={handleEmailChange}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="your@email.com"
+              />
+              {emailExists && <p className="text-red-600 text-sm mt-1">ອີເມວນີ້ຖືກນຳໃຊ້ແລ້ວ</p>}
+              {checkingEmail && <p className="text-sm text-gray-500 mt-1">ກຳລັງກວດອີເມວ...</p>}
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="instructorPad">ประวัติการสอน</label>
-          <textarea
-            id="instructorPad"
-            value={instructorPad}
-            onChange={(e) => setInstructorPad(e.target.value)}
-            required
-            placeholder="กรุณากรอกประวัติการสอน"
-          />
-        </div>
+            <div>
+              <label htmlFor="instructorHistory" className="block text-sm font-medium text-gray-700 mb-1">ປະຫວັດການສອນ (ຮູບ)</label>
+              <input
+                type="file"
+                id="instructorHistory"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                required
+                className="block w-full text-sm text-gray-700"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="address">ที่อยู่</label>
-          <textarea
-            id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-            placeholder="กรุณากรอกที่อยู่"
-          />
-        </div>
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">ທີ່ຢູ່</label>
+              <textarea
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="ປ້ອນທີ່ຢູ່"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="password">รหัสผ่าน</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="กรุณากรอกรหัสผ่าน"
-          />
-        </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">ລະຫັດຜ່ານ</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
 
-        <div className="button-container">
-          <button type="submit" className="register-btn">ลงทะเบียนผู้สอน</button>
-        </div>
-      </form>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={checkingEmail}
+              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              ລົງທະບຽນຜູ້ສອນ
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

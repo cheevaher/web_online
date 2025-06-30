@@ -11,7 +11,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'Please fill all fields' });
     }
 
-    const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    const existingUser = await db.query('SELECT id FROM learner WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ message: 'Email already registered' });
     }
@@ -20,7 +20,7 @@ export const register = async (req, res) => {
 
     // เพิ่ม role 'user' เป็นค่าเริ่มต้น
     const result = await db.query(
-      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
+      'INSERT INTO learner (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
       [name, email, hashedPassword, 'user']
     );
 
@@ -51,7 +51,7 @@ export const login = async (req, res) => {
 
     // ดึง role มาด้วย
     const result = await db.query(
-      'SELECT id, name, email, password, role FROM users WHERE email = $1',
+      'SELECT id, name, email, password, role FROM learner WHERE email = $1',
       [email]
     );
 

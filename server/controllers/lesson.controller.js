@@ -1,4 +1,6 @@
 import { pool } from '../config/db.js';
+import cloudinary from '../config/cloudinary.js'; // หรือเส้นทางที่ถูกต้องตามโครงสร้างโปรเจกต์ของคุณ
+
 
 // ✅ เพิ่มบทเรียนใหม่ในคอร์ส
 export const createLesson = async (req, res) => {
@@ -117,22 +119,42 @@ export const updateLesson = async (req, res) => {
 // ✅ ลบบทเรียน
 export const deleteLesson = async (req, res) => {
     const { lessonId } = req.params;
-
+  
     try {
-        // ลบบทเรียนโดยใช้ id แทน course_id
-        const result = await pool.query(
-            `DELETE FROM lesson WHERE id = $1 RETURNING *`, // เปลี่ยนจาก course_id เป็น id
-            [lessonId]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'ไม่พบบทเรียนที่ต้องการลบ' });
-        }
-
-        res.status(200).json({ message: 'ลบบทเรียนเรียบร้อยแล้ว' });
+      // 1. ดึงข้อมูลบทเรียน
+      const lessonRes = await pool.query(
+        'SELECT video_url FROM lesson WHERE lesson_id = $1',
+        [lessonId]
+      );
+  
+      if (lessonRes.rows.length === 0) {
+        return res.status(404).json({ message: 'ไม่พบบทเรียน' });
+      }
+  
+      const videoUrl = lessonRes.rows[0].video_url;
+  
+      // 2. ลบจาก Cloudinary (ถ้ามี URL)
+      if (videoUrl) {
+        const publicId = videoUrl.split('/upload/')[1].split('.')[0];
+        await cloudinary.uploader.destroy(publicId, {
+          resource_type: 'video',
+          invalidate: true
+        });
+      }
+  
+      // 3. ลบจากฐานข้อมูล
+      await pool.query('DELETE FROM lesson WHERE lesson_id = $1', [lessonId]);
+  
+      res.status(200).json({ success: true });
     } catch (err) {
-        console.error('Error deleting lesson:', err);
-        res.status(500).json({ message: 'ไม่สามารถลบบทเรียนได้' });
+      console.error('Delete Error:', err);
+      res.status(500).json({ 
+        success: false,
+        message: err.message 
+      });
     }
-};
+  };
+  
+  
+
 
