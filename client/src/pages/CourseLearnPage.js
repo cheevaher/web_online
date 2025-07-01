@@ -89,13 +89,7 @@ const CourseLearnPage = () => {
 
   return (
     <div className="flex flex-col lg:flex-row max-w-7xl mx-auto px-4 py-8 gap-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md mb-6"
-      >
-        ກັບຄືນ
-      </button>
-
+      
       <div className="flex-1">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
           ບົດທີ {currentLessonIndex + 1}: {currentLesson?.title || currentLesson?.lesson_name}

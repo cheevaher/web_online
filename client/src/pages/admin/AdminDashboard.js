@@ -9,7 +9,7 @@ const AdminDashboard = () => {
 
       {/* ສ່ວນເນື້ອຫາຫຼັກ */}
       <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold mb-6">ເຂົ້າສູ່ໜ້າລາຍງານຂໍ້ມູນສໍາລັບ Admin ສຳດລັດ</h1>
+        <h1 className="text-3xl font-bold mb-6">ເຂົ້າສູ່ໜ້າລາຍງານຂໍ້ມູນສໍາລັບ Admin ສຳເລັດ</h1>
         <p>ຂໍ້ມູນສະຫຼຸບ ຫຼື ການລາຍງານຕ່າງໆຈະຢູ່ໃນຫນ້ານີ້</p>
       </main>
     </div>

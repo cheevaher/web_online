@@ -124,7 +124,7 @@ function SalesReportPage() {
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
           title="Export ລາຍງານເປັນ PDF"
         >
-          Export PDF
+          ດາວໂຫຼດເປັນ PDF
         </button>
       </div>
 
@@ -151,7 +151,7 @@ function SalesReportPage() {
           <thead>
             <tr className="bg-gray-200">
               <th className="border p-2">ໄລຍະເວລາ</th>
-              <th className="border p-2">ຊື່ຄໍສ</th>
+              <th className="border p-2">ຊື່ຄອສ</th>
               <th className="border p-2">ຊື່ຜູ້ສອນ</th>
               <th className="border p-2">ຈຳນວນຂາຍ (ເທື່ອ)</th>
               <th className="border p-2">ລາຄາຕໍ່ເທື່ອ</th>

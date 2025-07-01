@@ -9,17 +9,7 @@ const AdminLayout = () => {
         <div className="p-6 text-xl font-bold border-b">ເມນູນຈັດການຂໍ້ມູນ</div>
         <nav className="p-4">
           <ul className="space-y-3">
-            <li>
-              <NavLink
-                to="/admin/instructor-report"
-                className={({ isActive }) =>
-                  `block p-2 rounded hover:bg-gray-200 ${isActive ? 'bg-gray-300 font-semibold' : ''}`
-                }
-              >
-                ລາຍງານຜູ້ສອນ
-              </NavLink>
-            </li>
-            <li>
+              <li>
               <NavLink
                 to="/admin/approve-instructor"
                 className={({ isActive }) =>
@@ -31,12 +21,23 @@ const AdminLayout = () => {
             </li>
             <li>
               <NavLink
+                to="/admin/instructor-report"
+                className={({ isActive }) =>
+                  `block p-2 rounded hover:bg-gray-200 ${isActive ? 'bg-gray-300 font-semibold' : ''}`
+                }
+              >
+                ລາຍງານຜູ້ສອນ
+              </NavLink>
+            </li>
+          
+            <li>
+              <NavLink
                 to="/admin/users-report"
                 className={({ isActive }) =>
                   `block p-2 rounded hover:bg-gray-200 ${isActive ? 'bg-gray-300 font-semibold' : ''}`
                 }
               >
-                ລາຍງານຜູ້ໃຊ້
+                ລາຍງານຜູ້ຮຽນ
               </NavLink>
             </li>
             <li>

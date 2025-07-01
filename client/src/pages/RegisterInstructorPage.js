@@ -169,7 +169,7 @@ const RegisterInstructorPage = () => {
             </div>
 
             <div>
-              <label htmlFor="instructorHistory" className="block text-sm font-medium text-gray-700 mb-1">ປະຫວັດການສອນ (ຮູບ)</label>
+              <label htmlFor="instructorHistory" className="block text-sm font-medium text-gray-700 mb-1">ເອກະສານຢັ້ງຍືນຕົວຕົ້ນ(ບັດປະຈຳຕົວ...)</label>
               <input
                 type="file"
                 id="instructorHistory"

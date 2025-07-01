@@ -114,7 +114,8 @@ const RegisterForm = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md 
+                placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="ປ້ອນຊື່ຜູ້ໃຊ້"
               />
             </div>
@@ -129,7 +130,8 @@ const RegisterForm = () => {
                 value={email}
                 onChange={handleEmailChange}
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="your@email.com"
               />
               {emailExists && (

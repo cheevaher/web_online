@@ -1,47 +1,58 @@
-// // import { pool } from '../config/db.js';
+// // middleware/checkCourseAccess.js
+// import { pool } from '../config/db.js';
 
 // export const checkCourseAccess = async (req, res, next) => {
 //   const user = req.user || req.instructor || req.admin;
 
 //   if (!user) {
-//     return res.status(401).json({ message: 'ไม่พบข้อมูลผู้ใช้ในระบบ' });
+//     return res.status(401).json({ message: 'ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້ໃນລະບົບ' });
 //   }
 
-//   const userId = user.id || user.admin_id; // admin_id สำหรับ admin
-//   const courseId = req.params.courseId || req.params.id; // ตรวจสอบพารามิเตอร์
+//   const userId = user.id || user.admin_id;
+//   const courseId = req.params.courseId || req.params.id;
+
+//   console.log('🔐 ກວດສອບສິດທິໃນການເຂົ້າເຖິງຄອສ:');
+//   console.log('👉 userId:', userId);
+//   console.log('👉 courseId:', courseId);
 
 //   try {
-//     // ตรวจสอบ admin
+//     // Admin ເຂົ້າໄດ້ທຸກຄອສ
 //     if (user.admin_id) {
+//       console.log('✅ Admin - ຜ່ານ');
 //       return next();
 //     }
 
-//     // ตรวจสอบเจ้าของคอร์ส (instructor)
+//     // Instructor ເປັນເຈົ້າຂອງຄອສ
 //     const ownerCheck = await pool.query(
 //       'SELECT * FROM course WHERE id = $1 AND instructor_id = $2',
 //       [courseId, userId]
 //     );
-
 //     if (ownerCheck.rows.length > 0) {
+//       console.log('✅ Instructor ເປັນເຈົ້າຂອງຄອສ - ຜ່ານ');
 //       return next();
 //     }
 
-//     // ตรวจสอบการซื้อคอร์ส (learner)
+//     // Learner ຕ້ອງລົງທະບຽນຄອສ
 //     const enrollCheck = await pool.query(
 //       'SELECT * FROM enroll WHERE user_id = $1 AND course_id = $2',
 //       [userId, courseId]
 //     );
-
-//     if (enrollCheck.rows.length === 0) {
-//       return res.status(403).json({ message: 'คุณยังไม่ได้ซื้อคอร์สนี้' });
+//     if (enrollCheck.rows.length > 0) {
+//       console.log('✅ Learner ລົງທະບຽນແລ້ວ - ຜ່ານ');
+//       return next();
 //     }
 
-//     next();
+//     console.log('❌ ຜູ້ໃຊ້ບໍ່ມີສິດເຂົ້າຄອສ');
+//     return res.status(403).json({ message: 'ທ່ານຍັງບໍ່ໄດ້ຊື້ຄອສນີ້' });
+
 //   } catch (err) {
-//     console.error('Check Course Access Error:', err);
-//     res.status(500).json({ message: 'เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์การเข้าถึงคอร์ส' });
+//     console.error('❗ ເກີດຂໍ້ຜິດພາດໃນການກວດສອບສິດເຂົ້າຄອສ:', err);
+//     return res.status(500).json({ message: 'ເກີດຂໍ້ຜິດພາດໃນການກວດສອບສິດການເຂົ້າຄອສ' });
 //   }
 // };
+
+
+
 import { pool } from '../config/db.js';
 
 export const checkCourseAccess = async (req, res, next) => {

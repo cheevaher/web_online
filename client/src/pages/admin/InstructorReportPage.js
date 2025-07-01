@@ -417,12 +417,12 @@ const InstructorReportPage = () => {
 
     // Table data
     const tableColumn = [
-      "#", 
-      "ຊື່ຜູ້ສອນ", 
-      "ອີເມວ", 
-      "ເບີໂທ", 
-      "ຈຳນວນຫຼັກສູດ", 
-      "ລາຍໄດ້ລວມ (₭)", 
+      "#",
+      "ຊື່ຜູ້ສອນ",
+      "ອີເມວ",
+      "ເບີໂທ",
+      "ຈຳນວນຫຼັກສູດ",
+      "ລາຍໄດ້ລວມ (₭)",
       "ວັນທີລົງທະບຽນ"
     ];
 
@@ -488,7 +488,7 @@ const InstructorReportPage = () => {
     return (
       <div className="p-4 text-red-500 text-center">
         {error}
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
         >
@@ -509,7 +509,7 @@ const InstructorReportPage = () => {
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          ດາວໂຫຼດ PDF
+          ດາວໂຫຼດເປັນ PDF
         </button>
       </div>
 
@@ -584,8 +584,8 @@ const InstructorReportPage = () => {
                                         {course.category_name || 'ບໍ່ມີປະເພດ'}
                                       </span>
                                       <span className="font-bold text-blue-600">
-                                        {course.course_price > 0 ? 
-                                          `${new Intl.NumberFormat('lo-LA').format(course.course_price)} ₭` : 
+                                        {course.course_price > 0 ?
+                                          `${new Intl.NumberFormat('lo-LA').format(course.course_price)} ₭` :
                                           'ຟຣີ'}
                                       </span>
                                     </div>

@@ -59,6 +59,10 @@
 //     res.status(403).json({ message: 'Token ไม่ถูกต้อง' });
 //   }
 // };
+
+
+
+
 // import jwt from 'jsonwebtoken';
 // import { pool } from '../config/db.js';
 
@@ -113,6 +117,9 @@
 //     return res.status(403).json({ message: 'Token ไม่ถูกต้อง หรือเกิดข้อผิดพลาดในการยืนยันตัวตน' });
 //   }
 // };
+
+
+
 import jwt from 'jsonwebtoken';
 import { pool } from '../config/db.js';
 
@@ -164,3 +171,61 @@ export const authenticate = async (req, res, next) => {
     return res.status(403).json({ message: 'Token ไม่ถูกต้อง' });
   }
 };
+
+
+// // middleware/authenticate.js
+// import jwt from 'jsonwebtoken';
+// import { pool } from '../config/db.js';
+
+// export const authenticate = async (req, res, next) => {
+//   try {
+//     const authHeader = req.headers.authorization;
+//     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//       console.log('❌ ບໍ່ພົບ Header Authorization ຫຼືຮູບແບບບໍ່ຖືກຕ້ອງ');
+//       return res.status(401).json({ message: 'ກະລຸນາເຂົ້າລະບົບກ່ອນໃຊ້ງານ' });
+//     }
+
+//     const token = authHeader.split(' ')[1];
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const userId = decoded.id;
+
+//     console.log('✅ JWT ຖືກຕ້ອງ:', decoded);
+
+//     const { rows: learnerRows } = await pool.query('SELECT * FROM learner WHERE id = $1', [userId]);
+//     if (learnerRows.length > 0) {
+//       req.user = learnerRows[0];
+//       req.user.role = 'learner';
+//       console.log('👤 ຜູ້ໃຊ້ຄື Learner:', req.user);
+//       return next();
+//     }
+
+//     const { rows: instructorRows } = await pool.query('SELECT * FROM instructors WHERE id = $1', [userId]);
+//     if (instructorRows.length > 0) {
+//       req.instructor = instructorRows[0];
+//       req.instructor.role = 'instructor';
+//       console.log('👨‍🏫 ຜູ້ໃຊ້ຄື Instructor:', req.instructor);
+//       return next();
+//     }
+
+//     const { rows: adminRows } = await pool.query('SELECT * FROM admin WHERE admin_id = $1', [userId]);
+//     if (adminRows.length > 0) {
+//       req.admin = adminRows[0];
+//       req.admin.role = 'admin';
+//       console.log('👑 ຜູ້ໃຊ້ຄື Admin:', req.admin);
+//       return next();
+//     }
+
+//     console.log('❌ ບໍ່ພົບຜູ້ໃຊ້ໃນລະບົບ');
+//     return res.status(403).json({ message: 'ບໍ່ພົບຜູ້ໃຊ້ໃນລະບົບ' });
+
+//   } catch (error) {
+//     console.error('❗ JWT Error:', error);
+
+//     if (error.name === 'TokenExpiredError') {
+//       return res.status(401).json({ message: 'Token ໝົດອາຍຸ ກະລຸນາເຂົ້າລະບົບໃໝ່' });
+//     }
+
+//     return res.status(403).json({ message: 'Token ບໍ່ຖືກຕ້ອງ ຫຼື ເກີດຂໍ້ຜິດພາດໃນການກວດສອບ' });
+//   }
+// };
+
