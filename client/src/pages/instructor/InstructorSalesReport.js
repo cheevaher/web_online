@@ -73,8 +73,8 @@ const InstructorSalesReport = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-extrabold mb-6 text-gray-800 border-b border-gray-300 pb-2">
-        ລາຍງານການຂາຍຂອງຂ້ອຍ
+      <h1 className="text-3xl font-extrabold mb-6 text-gray-800 border-b border-gray-300 pb-2 text-center">
+        ລາຍງານການຂາຍຂອງທ່ານ
       </h1>
 
       {/* ລາຍໄດ້ລວມທັງໝົດ */}

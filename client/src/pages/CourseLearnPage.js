@@ -129,7 +129,7 @@ const CourseLearnPage = () => {
           />
           <button
             onClick={handleSubmitComment}
-            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-bulue-700"
           >
             ສົ່ງຄວາມຄິດເຫັນ
           </button>
@@ -159,7 +159,7 @@ const CourseLearnPage = () => {
               onClick={() => setCurrentLessonIndex(index)}
               className={`cursor-pointer p-3 rounded-lg transition-colors duration-200 ${
                 index === currentLessonIndex
-                  ? 'bg-purple-100 text-purple-700 font-semibold'
+                  ? 'bg-purple-100 text-blue-700 font-semibold'
                   : 'hover:bg-gray-100 text-gray-800'
               }`}
             >

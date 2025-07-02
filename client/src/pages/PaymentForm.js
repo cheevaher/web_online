@@ -89,7 +89,7 @@ const PaymentForm = ({ amount, courseId }) => {
       <button
         type="submit"
         disabled={!stripe || loading}
-        className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full transition disabled:opacity-50"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition disabled:opacity-50"
       >
         {loading ? 'ກຳລັງຊຳລະເງິນ...' : 'ຊຳລະເງິນ'}
       </button>

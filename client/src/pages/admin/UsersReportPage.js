@@ -1,146 +1,10 @@
-// import React, { useEffect, useState } from 'react';
-// import jsPDF from 'jspdf';
-// import 'jspdf-autotable';
-
-// const UsersReportPage = () => {
-//   const [users, setUsers] = useState([]);
-
-//   useEffect(() => {
-//     fetch('/api/reports/users')
-//       .then(res => res.json())
-//       .then(data => setUsers(data))
-//       .catch(err => console.error(err));
-//   }, []);
-
-//   const exportPDF = () => {
-//     const doc = new jsPDF();
-//     doc.text("ລາຍງານຜູ້ໃຊ້", 14, 15);
-
-//     const tableColumn = [
-//       "ID ຜູ້ໃຊ້",
-//       "ຊື່ຜູ້ໃຊ້",
-//       "ອີເມວ",
-//       "ຈຳນວນຫຼັກສູດທີ່ຊື້",
-//       "ຊື່ຄໍສທີ່ຊື້",
-//       "ວັນທີລົງທະບຽນ"
-//     ];
-//     const tableRows = [];
-
-//     users.forEach(user => {
-//       const courseTitles = user.courses?.map(c => `+ ${c.title}`).join('\n') || '—';
-//       const userData = [
-//         user.id,
-//         user.username,
-//         user.email,
-//         user.courses?.length || 0,
-//         courseTitles,
-//         new Date(user.registered_date).toLocaleDateString('lo-LA')
-//       ];
-//       tableRows.push(userData);
-//     });
-
-//     doc.autoTable({
-//       head: [tableColumn],
-//       body: tableRows,
-//       startY: 20,
-//       styles: { fontSize: 8 },
-//       columnStyles: {
-//         4: { cellWidth: 60 }, // ປັບຄວາມກວ້າງຄໍລັມນຊື່ຄໍສໃຫ້ພໍດີ
-//       }
-//     });
-//     doc.save("users_report.pdf");
-//   };
-
-//   const tableStyle = {
-//     width: '100%',
-//     borderCollapse: 'collapse',
-//     marginTop: '20px',
-//     backgroundColor: '#fff',
-//     border: '1px solid #ddd',
-//     fontFamily: 'Arial, sans-serif',
-//   };
-
-//   const thStyle = {
-//     backgroundColor: '#f2f2f2',
-//     textAlign: 'left',
-//     padding: '12px',
-//     border: '1px solid #ddd',
-//   };
-
-//   const tdStyle = {
-//     padding: '12px',
-//     border: '1px solid #ddd',
-//     verticalAlign: 'top',
-//   };
-
-//   return (
-//     <div style={{ padding: '20px' }}>
-//       <h1>ລາຍງານຜູ້ໃຊ້</h1>
-//       <button
-//         onClick={exportPDF}
-//         style={{
-//           padding: '10px 15px',
-//           marginBottom: '20px',
-//           backgroundColor: '#007bff',
-//           color: '#fff',
-//           border: 'none',
-//           borderRadius: '4px',
-//           cursor: 'pointer',
-//           fontWeight: 'bold',
-//           fontSize: '16px',
-//         }}
-//       >
-//         Export ເປັນ PDF
-//       </button>
-
-//       <table style={tableStyle}>
-//         <thead>
-//           <tr>
-//             <th style={thStyle}>ID ຜູ້ໃຊ້</th>
-//             <th style={thStyle}>ຊື່ຜູ້ໃຊ້</th>
-//             <th style={thStyle}>ອີເມວ</th>
-//             <th style={thStyle}>ຈຳນວນຫຼັກສູດທີ່ຊື້</th>
-//             <th style={thStyle}>ຊື່ຄໍສທີ່ຊື້</th>
-//             <th style={thStyle}>ວັນທີລົງທະບຽນ</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {users.map(u => (
-//             <tr key={u.id}>
-//               <td style={tdStyle}>{u.id}</td>
-//               <td style={tdStyle}>{u.username}</td>
-//               <td style={tdStyle}>{u.email}</td>
-//               <td style={tdStyle}>{u.courses?.length || 0}</td>
-//               <td style={tdStyle}>
-//                 {u.courses?.length ? (
-//                   <ul style={{ margin: 0, paddingLeft: '20px' }}>
-//                     {u.courses.map((c, idx) => (
-//                       <li key={idx} style={{ color: '#007bff', fontWeight: 'bold' }}>
-//                         + {c.title}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 ) : (
-//                   <span>—</span>
-//                 )}
-//               </td>
-//               <td style={tdStyle}>{new Date(u.registered_date).toLocaleDateString('lo-LA')}</td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default UsersReportPage;
-
-
 import React, { useEffect, useState } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import axios from 'axios';
 import saysetthaFont from './Saysettha-normal';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const UsersReportPage = () => {
   const [users, setUsers] = useState([]);
@@ -222,6 +86,51 @@ const UsersReportPage = () => {
     doc.save(`ລາຍງານຜູ້ໃຊ້_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  // ฟังก์ชัน Export Excel
+ const exportExcel = () => {
+  const wsData = [
+    [
+      "#",
+      "ຊື່ຜູ້ໃຊ້",
+      "ອີເມວ",
+      "ຈຳນວນຄອສ",
+      "ລາຍຊື່ຄອສ",
+      "ວັນທີລົງທະບຽນ"
+    ],
+    ...users.map((user, index) => [
+      index + 1,
+      user.username,
+      user.email,
+      user.courses?.length || 0,
+      user.courses?.map(c => c.title).join('\n') || '—',  // ใช้ \n แทน ,
+      new Date(user.registered_date).toLocaleDateString('lo-LA')
+    ])
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // กำหนดความกว้างคอลัมน์ (ประมาณค่าเองตามความเหมาะสม)
+  ws['!cols'] = [
+    { wch: 5 },   // #
+    { wch: 20 },  // ชื่อผู้ใช้
+    { wch: 30 },  // อีเมล
+    { wch: 10 },  // จำนวนคอร์ส
+    { wch: 40 },  // รายชื่อคอร์ส (กว้างกว่า)
+    { wch: 15 }   // วันที่ลงทะเบียน
+  ];
+
+  // สร้าง workbook
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+  // เขียนไฟล์ Excel และสร้าง Blob
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([wbout], { type: "application/octet-stream" });
+
+  saveAs(blob, `ລາຍງານຜູ້ໃຊ້_${new Date().toISOString().slice(0, 10)}.xlsx`);
+};
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -245,15 +154,26 @@ const UsersReportPage = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">ລາຍງານຜູ້ໃຊ້</h1>
-        <button
-          onClick={exportPDF}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          ດາວໂຫຼດເປັນ PDF
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={exportPDF}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            ດາວໂຫຼດເປັນ PDF
+          </button>
+          <button
+            onClick={exportExcel}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            ດາວໂຫຼດເປັນ Excel
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">

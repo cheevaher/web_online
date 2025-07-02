@@ -1,10 +1,9 @@
-// /services/commentService.js
 const API_URL = 'http://localhost:4000/api/comments';
 
 // แก้ชื่อฟังก์ชันให้ตรงกับที่ใช้ในหน้า CourseLearnPage
 
 export const getCommentsByLesson = async (courseId, lessonId, token) => {
-  const res = await fetch(`http://localhost:4000/api/comments/${courseId}/${lessonId}`, {
+  const res = await fetch(`${API_URL}/${courseId}/${lessonId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -18,7 +17,7 @@ export const getCommentsByLesson = async (courseId, lessonId, token) => {
 };
 
 export const createComment = async ({ courseId, lessonId, content, token }) => {
-  const res = await fetch(`http://localhost:4000/api/comments`, {
+  const res = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

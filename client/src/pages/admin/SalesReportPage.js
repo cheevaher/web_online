@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 function SalesReportPage() {
   const [report, setReport] = useState([]);
-  const [groupBy, setGroupBy] = useState('day'); // ເລີ່ມຕົ້ນເປັນລາຍວັນ
+  const [groupBy, setGroupBy] = useState('day');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,7 +29,6 @@ function SalesReportPage() {
     }
   };
 
-  // ຟັງຊັນແປງວັນທີ
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -59,15 +59,12 @@ function SalesReportPage() {
     return date.toLocaleDateString('lo-LA', { month: 'short', year: 'numeric' });
   };
 
-  // ຟັງຊັນ Export PDF
+  // ฟังก์ชัน Export PDF (เดิม)
   const exportPDF = () => {
     const doc = new jsPDF();
-
-    // ຊື່ລາຍງານ
     doc.setFontSize(18);
     doc.text('ລາຍງານການຂາຍ', 14, 22);
 
-    // ວັນທີ່ສ້າງລາຍງານ
     doc.setFontSize(11);
     const today = new Date().toLocaleDateString('lo-LA', {
       year: 'numeric',
@@ -78,7 +75,6 @@ function SalesReportPage() {
     });
     doc.text(`ວັນທີ່ສ້າງ: ${today}`, 14, 30);
 
-    // ເຮັດຫົວຕາຕາງ
     const tableColumn = [
       'ໄລຍະເວລາ',
       'ຊື່ຄໍສ',
@@ -88,13 +84,12 @@ function SalesReportPage() {
       'ຍອດຂາຍລວມ',
     ];
 
-    // ເຮັດຂໍ້ມູນແຖວ
     const tableRows = report.map((row) => [
       groupBy === 'day'
         ? formatDate(row.period_start)
         : groupBy === 'week'
-        ? formatWeekRange(row.period_start, row.period_end)
-        : formatMonthYear(row.period_start),
+          ? formatWeekRange(row.period_start, row.period_end)
+          : formatMonthYear(row.period_start),
       row.course_name,
       row.instructor_name,
       row.sales_count,
@@ -102,7 +97,6 @@ function SalesReportPage() {
       `₭${row.total_revenue}`,
     ]);
 
-    // ສ້າງຕາຕາງ PDF ໂດຍ autoTable
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
@@ -111,35 +105,101 @@ function SalesReportPage() {
       headStyles: { fillColor: [22, 160, 133] },
     });
 
-    // ບັນທຶກເປັນໄຟລ໌ PDF
     doc.save('sales_report.pdf');
+  };
+
+  // ฟังก์ชัน Export Excel (ใหม่)
+  const exportExcel = () => {
+    // เตรียมข้อมูลสำหรับ Excel
+    const excelData = report.map((row) => ({
+      'ໄລຍະເວລາ': groupBy === 'day'
+        ? formatDate(row.period_start)
+        : groupBy === 'week'
+          ? formatWeekRange(row.period_start, row.period_end)
+          : formatMonthYear(row.period_start),
+      'ຊື່ຄອສ': row.course_name,
+      'ຊື່ຜູ້ສອນ': row.instructor_name,
+      'ຈຳນວນຂາຍ (ເທື່ອ)': row.sales_count,
+      'ລາຄາຕໍ່ເທື່ອ': `₭${row.price_per_unit}`,
+      'ຍອດຂາຍລວມ': `₭${row.total_revenue}`,
+    }));
+
+    // สร้าง worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // สร้าง workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sales Report");
+
+    // สร้างไฟล์ Excel
+    const today = new Date().toLocaleDateString('lo-LA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    XLSX.writeFile(workbook, `sales_report_${today}.xlsx`);
   };
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">ລາຍງານການຂາຍ</h1>
-        <button
-          onClick={exportPDF}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
-          title="Export ລາຍງານເປັນ PDF"
-        >
-          ດາວໂຫຼດເປັນ PDF
-        </button>
-      </div>
+      <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">ລາຍງານການຂາຍ</h1>
+      <div className="flex justify-between mb-6 flex-wrap gap-4">
+        {/* ปุ่มเลือกช่วงเวลา */}
+        <div className="flex space-x-2">
+          {['day', 'week', 'month'].map((period) => (
+            <button
+              key={period}
+              className={`px-4 py-2 rounded ${groupBy === period ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                }`}
+              onClick={() => setGroupBy(period)}
+            >
+              {period === 'day'
+                ? 'ລາຍວັນ'
+                : period === 'week'
+                  ? 'ລາຍອາທິດ'
+                  : 'ລາຍເດືອນ'}
+            </button>
+          ))}
+        </div>
 
-      <div className="mb-4 space-x-2">
-        {['day', 'week', 'month'].map((period) => (
+        {/* ปุ่ม export */}
+        <div className="flex space-x-2">
           <button
-            key={period}
-            className={`px-4 py-2 rounded ${
-              groupBy === period ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-            onClick={() => setGroupBy(period)}
+            onClick={exportPDF}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
           >
-            {period === 'day' ? 'ລາຍວັນ' : period === 'week' ? 'ລາຍອາທິດ' : 'ລາຍເດືອນ'}
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            ດາວໂຫຼດເປັນ PDF
           </button>
-        ))}
+
+          <button
+            onClick={exportExcel}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            ດາວໂຫຼດເປັນ Excel
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -172,8 +232,8 @@ function SalesReportPage() {
                     {groupBy === 'day'
                       ? formatDate(row.period_start)
                       : groupBy === 'week'
-                      ? formatWeekRange(row.period_start, row.period_end)
-                      : formatMonthYear(row.period_start)}
+                        ? formatWeekRange(row.period_start, row.period_end)
+                        : formatMonthYear(row.period_start)}
                   </td>
                   <td className="border p-2">{row.course_name}</td>
                   <td className="border p-2">{row.instructor_name}</td>

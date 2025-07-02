@@ -162,7 +162,7 @@ const CreateCourse = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">ອັບໂຫຼດຮູບພາບ</label>
+          <label className="block mb-2">ອັບໂຫຼດຮໜ້າປົກ</label>
           <input
             type="file"
             className="w-full p-2 border rounded"

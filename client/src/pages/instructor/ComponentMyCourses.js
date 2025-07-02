@@ -94,7 +94,7 @@ const MyCourses = () => {
 
   if (courses.length === 0) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center p-6">
         <h1 className="text-2xl font-bold mb-6">ຄອສຮຽນທັງໝົດທີ່ທ່ານສ້າງໄວ</h1>
         <p className="text-gray-600">ທ່ານຍັງບໍ່ໄດ້ສ້າງຄອສຮຽນໃດໆ</p>
       </div>
@@ -102,11 +102,15 @@ const MyCourses = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">ຄອສຮຽນຂອງຂ້ອຍ</h1>
+    <div >
+      <h1 className="text-4xl text-blue-600 font-bold mb-6 text-center p-6">ຄອສຮຽນທັງໝົດທີ່ທ່ານສ້າງໄວ</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <div key={course.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div
+            key={course.id}
+            onClick={() => navigate(`/learn/${course.id}`)}
+            className="cursor-pointer bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+          >
             <img
               src={course.thumbnail || 'https://via.placeholder.com/400x200.png?text=No+Image'}
               alt={course.title}
@@ -123,7 +127,10 @@ const MyCourses = () => {
               <div className="mt-2 font-bold text-blue-600">
                 ລາຄາ: {course.price ? `${course.price} ກີບ` : 'ຟຣີ'}
               </div>
-              <div className="mt-4 flex justify-between items-center">
+              <div
+                className="mt-4 flex justify-between items-center"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
                   onClick={() => navigate(`/courses/${course.id}/edit`)}
                   className="text-sm bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded"
